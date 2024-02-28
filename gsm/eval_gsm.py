@@ -1,8 +1,9 @@
 import json
-import openai
+# import openai
 import numpy as np
 import time
 import re
+import argparse
 
 def parse_bullets(sentence):
     bullets_preprocess = sentence.split("\n")
@@ -68,7 +69,7 @@ def parse_answer(input_str):
 
 def compute_accuracy(gt, pred_solution):
     answers = solve_math_problems(gt)
-
+    # print(answers)
     if answers is None:
         return None
 
@@ -119,7 +120,11 @@ def most_frequent(List):
     return num
 
 if __name__ == "__main__":
-    response_dict = json.load(open("gsm_debate_3_3.json", "r"))
+    parser = argparse.ArgumentParser(description='Evaluate GSM data')
+    parser.add_argument('--path', type=str, default="gsm_3_2.json", help='Path to the GSM data')
+    args = parser.parse_args()
+    
+    response_dict = json.load(open(args.path, "r"))
 
     questions = list(response_dict.keys())
 
@@ -139,6 +144,7 @@ if __name__ == "__main__":
         if accurate is not None:
             accuracies.append(float(accurate))
         else:
+            # print('no answer found')
             import pdb
             pdb.set_trace()
             print(gt)
