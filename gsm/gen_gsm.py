@@ -70,6 +70,7 @@ def construct_assistant_message(completion, API=False):
 def summarize_message(agent_contexts, question, idx):
     if len(agent_contexts) == 0:
         return {"role": "user", "content": "Can you double check that your answer is correct. Please reiterate your answer, with your final answer a single numerical number, in the form \\boxed{{answer}}."}
+    # prefix_string = 'The original math problem is {}. These are the solutions to the problem from other agents: '.format(question)
     prefix_string = "These are the solutions to the problem from other agents: "
 
     for agent in agent_contexts:
@@ -79,7 +80,8 @@ def summarize_message(agent_contexts, question, idx):
         prefix_string = prefix_string + response
 
     prefix_string = prefix_string + "\n\n Write a summary of the different opinions from each of the individual agent."
-    completion = generate_answer(prefix_string, API).split('model\n')[-1]
+    context = [{"role": "user", "content": prefix_string}]
+    completion = generate_answer(context, API).split('model\n')[-1]
     prefix_string = f"Here is a summary of solutions from other agents: \n\n{completion}"
     prefix_string = prefix_string + """\n\n Use this summarization carefully as additional information, can you provide your answer to the math problem? \n The original math problem is {}. Your final answer should be a single numerical number, in the form \\boxed{{answer}}, at the end of your response.""".format(question)
 
