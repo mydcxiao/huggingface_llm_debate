@@ -68,6 +68,8 @@ def construct_assistant_message(completion, API=False):
     return {"role": "model", "content": content}
 
 def summarize_message(agent_contexts, question, idx):
+    if len(agent_contexts) == 0:
+        return {"role": "user", "content": "Can you double check that your answer is correct. Please reiterate your answer, with your final answer a single numerical number, in the form \\boxed{{answer}}."}
     prefix_string = "These are the solutions to the problem from other agents: "
 
     for agent in agent_contexts:
