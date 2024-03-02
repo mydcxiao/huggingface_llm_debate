@@ -4,13 +4,12 @@ import numpy as np
 import random
 import requests
 import time
-from transformers import AutoTokenizer, GemmaTokenizer, AutoModelForCausalLM
-# Use a pipeline as a high-level helper
-from tqdm import tqdm
-from transformers import pipeline
-import transformers
-import torch
 import argparse
+from tqdm import tqdm
+import torch
+import transformers
+from transformers import AutoTokenizer, GemmaTokenizer, AutoModelForCausalLM
+from transformers import pipeline
 
 
 def generate_answer(answer_context, API=False):
@@ -18,7 +17,7 @@ def generate_answer(answer_context, API=False):
         prompt = tokenizer.apply_chat_template(answer_context, tokenize=False, add_generation_prompt=True)
         # print(prompt)
         inputs = tokenizer.encode(prompt, add_special_tokens=False, return_tensors="pt")
-        outputs = model.generate(input_ids=inputs.to(model.device), max_new_tokens=150)
+        outputs = model.generate(input_ids=inputs.to(model.device), max_new_tokens=200, do_sample=True)
         outputs = tokenizer.decode(outputs[0], skip_special_tokens=True)
         # print(outputs)
         return outputs
@@ -103,14 +102,16 @@ def main(args):
     questions = read_jsonl("grade-school-math/grade_school_math/data/test.jsonl")
     random.shuffle(questions)
 
-    # for data in tqdm(questions[:100], desc='Answering questions'):
-    for data in tqdm(questions, desc='Answering questions'):
+    for data in tqdm(questions[:100], desc='Answering questions'):
+    # for data in tqdm(questions, desc='Answering questions'):
+    # for data in questions[:1]:
         question = data['question']
         answer = data['answer']
 
         agent_contexts = [[{"role": "user", "content": """Can you solve the following math problem? {} Explain your reasoning. Your final answer should be a single numerical number, in the form \\boxed{{answer}}, at the end of your response. """.format(question)}] for agent in range(agents)]
 
         for round in tqdm(range(rounds), desc='Rounds', leave=False):
+        # for round in range(rounds):
             for i, agent_context in enumerate(agent_contexts):
 
                 if round != 0:
