@@ -17,8 +17,9 @@ def generate_answer(answer_context, API=False):
         prompt = tokenizer.apply_chat_template(answer_context, tokenize=False, add_generation_prompt=True)
         # print(prompt)
         inputs = tokenizer.encode(prompt, add_special_tokens=False, return_tensors="pt")
-        outputs = model.generate(input_ids=inputs.to(model.device), max_new_tokens=200, do_sample=True)
-        outputs = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        # outputs = model.generate(input_ids=inputs.to(model.device), max_new_tokens=100, num_beams=4, do_sample=True)
+        outputs = model.generate(input_ids=inputs.to(model.device))
+        outputs = tokenizer.decode(outputs[0], skip_special_tokens=True, clean_up_tokenization_spaces=True)
         # print(outputs)
         return outputs
     else:
@@ -55,18 +56,21 @@ def construct_message(agents, question, idx):
     prefix_string = prefix_string + """\n\n Using the solutions from other agents as additional information, can you provide your answer to the math problem? \n The original math problem is {}. Your final answer should be a single numerical number, in the form \\boxed{{answer}}, at the end of your response.""".format(question)
     return {"role": "user", "content": prefix_string}
 
-def construct_assistant_message(completion, API=False):
+def construct_assistant_message(completion, role, split, API=False):
     # content = completion["choices"][0]["message"]["content"]
     if API:
         content = completion[0]["generated_text"]
     else:
         content = completion
-    content = content.split('model\n')[-1]
+    # content = content.split('model\n')[-1] # Gemma
+    # content = content.split('[/INST]  ')[-1] # Llama
     # print(content)
+    content = content.split(split)[-1].strip()
+    return {"role": f"{role}", "content": content}
     # return {"role": "assistant", "content": content}
-    return {"role": "model", "content": content}
+    # return {"role": "model", "content": content}
 
-def summarize_message(agent_contexts, question, idx):
+def summarize_message(agent_contexts, question, idx, role, split):
     if len(agent_contexts) == 0:
         return {"role": "user", "content": "Can you double check that your answer is correct. Please reiterate your answer, with your final answer a single numerical number, in the form \\boxed{{answer}}."}
     # prefix_string = 'The original math problem is {}. These are the solutions to the problem from other agents: '.format(question)
@@ -80,7 +84,7 @@ def summarize_message(agent_contexts, question, idx):
 
     prefix_string = prefix_string + "\n\n Write a summary of the different opinions from each of the individual agent."
     context = [{"role": "user", "content": prefix_string}]
-    completion = generate_answer(context, API).split('model\n')[-1]
+    completion = construct_assistant_message(generate_answer(context, API), role, split, API)['content']
     prefix_string = f"Here is a summary of solutions from other agents: \n\n{completion}"
     prefix_string = prefix_string + """\n\n Use this summarization carefully as additional information, can you provide your answer to the math problem? \n The original math problem is {}. Your final answer should be a single numerical number, in the form \\boxed{{answer}}, at the end of your response.""".format(question)
 
@@ -109,17 +113,23 @@ def main(args):
         answer = data['answer']
 
         agent_contexts = [[{"role": "user", "content": """Can you solve the following math problem? {} Explain your reasoning. Your final answer should be a single numerical number, in the form \\boxed{{answer}}, at the end of your response. """.format(question)}] for agent in range(agents)]
-
+        
+        # for models with <sys> roles
+        if args.sys:
+            sys_contexts = {"role": "system", "content": "You are a helpful assistant to solve graduate math problems. Please answer the questions in logical and coherent manner."}
+            agent_contexts = [[sys_contexts] + agent_context for agent_context in agent_contexts]
+        
         for round in tqdm(range(rounds), desc='Rounds', leave=False):
         # for round in range(rounds):
             for i, agent_context in enumerate(agent_contexts):
 
                 if round != 0:
                     agent_contexts_other = agent_contexts[:i] + agent_contexts[i+1:]
+                    idx = 2*round if args.sys else 2*round - 1
                     if args.summarize:
-                        message = summarize_message(agent_contexts_other, question, 2*round - 1)
+                        message = summarize_message(agent_contexts_other, question, idx, args.role, args.split)
                     else:
-                        message = construct_message(agent_contexts_other, question, 2*round - 1)
+                        message = construct_message(agent_contexts_other, question, idx)
                     agent_context.append(message)
 
                 # completion = openai.ChatCompletion.create(
@@ -128,7 +138,7 @@ def main(args):
                 #           n=1)
                 completion = generate_answer(agent_context, args.api)
 
-                assistant_message = construct_assistant_message(completion, args.api)
+                assistant_message = construct_assistant_message(completion, args.role, args.split, args.api)
                 agent_context.append(assistant_message)
 
         generated_description[question] = (agent_contexts, answer)
@@ -145,9 +155,13 @@ if __name__ == "__main__":
     parser.add_argument('--agents', type=int, default=3, help='Number of agents')
     parser.add_argument('--rounds', type=int, default=2, help='Number of rounds')
     parser.add_argument('--api', action='store_true', help='Use API', default=False)
-    parser.add_argument('--model_id', type=str, default="google/gemma-2b-it", help='Model ID')
+    parser.add_argument('--model_id', type=str, default="meta-llama/Llama-2-7b-chat-hf", help='Model ID')
     parser.add_argument('--token', type=str, default="", help='API token')
     parser.add_argument('--summarize', action='store_true', help='Summarize', default=False)
+    parser.add_argument('--sys', action='store_true', help='Use sys role', default=False)
+    parser.add_argument('--split', type=str, default="[/INST]", help='Response split')
+    parser.add_argument('--role', type=str, default="assistant", help='Role')
+    
     args = parser.parse_args()
     API = args.api
     model_id = args.model_id
