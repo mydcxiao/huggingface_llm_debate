@@ -70,7 +70,7 @@ def construct_assistant_message(completion, role, split, API=False):
     # return {"role": "assistant", "content": content}
     # return {"role": "model", "content": content}
 
-def summarize_message(agent_contexts, question, idx, role, split):
+def summarize_message(agent_contexts, question, idx, role, split, sys):
     if len(agent_contexts) == 0:
         return {"role": "user", "content": "Can you double check that your answer is correct. Please reiterate your answer, with your final answer a single numerical number, in the form \\boxed{{answer}}."}
     # prefix_string = 'The original math problem is {}. These are the solutions to the problem from other agents: '.format(question)
@@ -84,6 +84,8 @@ def summarize_message(agent_contexts, question, idx, role, split):
 
     prefix_string = prefix_string + "\n\n Write a summary of the different opinions from each of the individual agent."
     context = [{"role": "user", "content": prefix_string}]
+    if sys:
+        context = [{"role": "system", "content": "You are a helpful assistant to conclude opinions from different agents in short and brief manner."}] + context
     completion = construct_assistant_message(generate_answer(context, API), role, split, API)['content']
     prefix_string = f"Here is a summary of solutions from other agents: \n\n{completion}"
     prefix_string = prefix_string + """\n\n Use this summarization carefully as additional information, can you provide your answer to the math problem? \n The original math problem is {}. Your final answer should be a single numerical number, in the form \\boxed{{answer}}, at the end of your response.""".format(question)
@@ -116,7 +118,7 @@ def main(args):
         
         # for models with <sys> roles
         if args.sys:
-            sys_contexts = {"role": "system", "content": "You are a helpful assistant to solve graduate math problems. Please answer the questions in logical and coherent manner."}
+            sys_contexts = {"role": "system", "content": "You are a helpful assistant to solve graduate school math problems. Please think step by step and answer the questions in logical and brief manner."}
             agent_contexts = [[sys_contexts] + agent_context for agent_context in agent_contexts]
         
         for round in tqdm(range(rounds), desc='Rounds', leave=False):
@@ -127,7 +129,7 @@ def main(args):
                     agent_contexts_other = agent_contexts[:i] + agent_contexts[i+1:]
                     idx = 2*round if args.sys else 2*round - 1
                     if args.summarize:
-                        message = summarize_message(agent_contexts_other, question, idx, args.role, args.split)
+                        message = summarize_message(agent_contexts_other, question, idx, args.role, args.split, args.sys)
                     else:
                         message = construct_message(agent_contexts_other, question, idx)
                     agent_context.append(message)

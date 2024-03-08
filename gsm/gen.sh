@@ -1,10 +1,10 @@
-export AGENTS=3
+export AGENTS=1
 export ROUNDS=2
 export MODEL_ID="meta-llama/Llama-2-7b-chat-hf"
 export TOKEN=""
 export SPLIT="[/INST]" #"model\n"
 export ROLE="assistant" #"model"
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=1
 
 python gen_gsm.py \
     --agents $AGENTS \
@@ -13,6 +13,6 @@ python gen_gsm.py \
     --split "$SPLIT" \
     --role "$ROLE" \
     --sys \
-    # --summarize \
+    --summarize \
     # --token "$TOKEN" \
     # --api \
