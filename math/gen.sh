@@ -1,5 +1,5 @@
-export AGENTS=1
-export ROUNDS=1
+export AGENTS=4
+export ROUNDS=2
 export MODEL_ID="meta-llama/Llama-2-7b-chat-hf"
 export TOKEN=""
 export SPLIT="[/INST]" #"model\n"

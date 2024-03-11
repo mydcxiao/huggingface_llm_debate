@@ -7,6 +7,7 @@ from tqdm import tqdm
 import argparse
 import torch
 import transformers
+import requests
 from transformers import AutoTokenizer, GemmaTokenizer, AutoModelForCausalLM, AutoConfig
 from transformers import pipeline
 
