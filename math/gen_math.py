@@ -36,9 +36,9 @@ def generate_answer(answer_context, API=False):
         # print(prompt)
         inputs = tokenizer.encode(prompt, add_special_tokens=False, return_tensors="pt")
         # introduce randomness
-        gen_config.top_k = np.random.randint(10, 51)
-        gen_config.top_p = np.random.uniform(0.9, 1.0)
-        gen_config.temperature = np.random.uniform(0.6, 1.0)
+        # gen_config.top_k = np.random.randint(10, 51)
+        # gen_config.top_p = np.random.uniform(0.9, 1.0)
+        # gen_config.temperature = np.random.uniform(0.6, 1.0)
         outputs = model.generate(input_ids=inputs.to(model.device), generation_config=gen_config)
         outputs = tokenizer.decode(outputs[0], skip_special_tokens=True, clean_up_tokenization_spaces=True)
         # print(outputs)

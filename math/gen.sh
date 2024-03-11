@@ -1,10 +1,13 @@
-export AGENTS=1
+export AGENTS=2
 export ROUNDS=2
 # export MODEL_ID="meta-llama/Llama-2-7b-chat-hf"
 export MODEL_ID="mistralai/Mistral-7B-Instruct-v0.2"
+# export MODEL_ID=""google/gemma-7b-it""
 export TOKEN=""
-export SPLIT="[/INST]" #"model\n"
-export ROLE="assistant" #"model"
+export SPLIT="[/INST]" 
+# export SPLIT="model"
+export ROLE="assistant" 
+# export ROLE="model"
 export CUDA_VISIBLE_DEVICES=1
 
 python gen_math.py \
