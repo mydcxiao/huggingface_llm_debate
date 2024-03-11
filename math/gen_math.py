@@ -7,7 +7,7 @@ from tqdm import tqdm
 import argparse
 import torch
 import transformers
-from transformers import AutoTokenizer, GemmaTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, GemmaTokenizer, AutoModelForCausalLM, AutoConfig
 from transformers import pipeline
 
 
@@ -35,7 +35,7 @@ def generate_answer(answer_context, API=False):
         # print(prompt)
         inputs = tokenizer.encode(prompt, add_special_tokens=False, return_tensors="pt")
         # outputs = model.generate(input_ids=inputs.to(model.device), max_new_tokens=100, num_beams=4, do_sample=True)
-        outputs = model.generate(input_ids=inputs.to(model.device))
+        outputs = model.generate(input_ids=inputs.to(model.device), do_sample=True)
         outputs = tokenizer.decode(outputs[0], skip_special_tokens=True, clean_up_tokenization_spaces=True)
         # print(outputs)
         return outputs
@@ -184,6 +184,9 @@ def main(args):
         text_answers = []
 
         with open("math_{}_{}.txt".format(agents, rounds), "w") as f:
+            pass
+        
+        with open("math_{}_{}.txt".format(agents, rounds), "a") as f:
             
             for agent_context in agent_contexts:
                 # text_answer = string =  agent_context[-1]['content']
@@ -243,11 +246,12 @@ if __name__ == "__main__":
         headers = {"Authorization": f"Bearer {YOUR_TOKEN}",
                 "Content-Type": "application/json"}
     else:
-        dtype = torch.bfloat16
+        config = AutoConfig.from_pretrained(model_id)
+        torch_dtype = config.torch_dtype
         model = AutoModelForCausalLM.from_pretrained(
             model_id,
-            device_map="cuda",
-            torch_dtype=dtype,
+            device_map='auto',
+            torch_dtype=torch_dtype,
         )
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     main(args)
