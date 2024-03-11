@@ -73,7 +73,6 @@ def construct_assistant_message(completion, role, split, API=False):
 def summarize_message(agent_contexts, question, idx, role, split, sys):
     if len(agent_contexts) == 0:
         return {"role": "user", "content": "Can you double check that your answer is correct. Please reiterate your answer, with your final answer a single numerical number, in the form \\boxed{{answer}}."}
-    # prefix_string = 'The original math problem is {}. These are the solutions to the problem from other agents: '.format(question)
     prefix_string = "These are the solutions to the problem from other agents: "
 
     for agent in agent_contexts:
@@ -85,7 +84,7 @@ def summarize_message(agent_contexts, question, idx, role, split, sys):
     prefix_string = prefix_string + "\n\n Write a summary of the different opinions from each of the individual agent."
     context = [{"role": "user", "content": prefix_string}]
     if sys:
-        context = [{"role": "system", "content": "You are a helpful assistant to conclude opinions from different agents in short and brief manner."}] + context
+        context = [{"role": "system", "content": "You are a helpful assistant to summarize opinions from different agents in short and brief manner."}] + context
     completion = construct_assistant_message(generate_answer(context, API), role, split, API)['content']
     prefix_string = f"Here is a summary of solutions from other agents: \n\n{completion}"
     prefix_string = prefix_string + """\n\n Use this summarization carefully as additional information, can you provide your answer to the math problem? \n The original math problem is {}. Your final answer should be a single numerical number, in the form \\boxed{{answer}}, at the end of your response.""".format(question)
@@ -97,7 +96,6 @@ def read_jsonl(path: str):
         return [json.loads(line) for line in fh.readlines() if line]
 
 def main(args):
-# if __name__ == "__main__":
     
     agents = args.agents
     rounds = args.rounds
@@ -109,8 +107,6 @@ def main(args):
     random.shuffle(questions)
 
     for data in tqdm(questions[:100], desc='Answering questions'):
-    # for data in tqdm(questions, desc='Answering questions'):
-    # for data in questions[:1]:
         question = data['question']
         answer = data['answer']
 
@@ -122,7 +118,6 @@ def main(args):
             agent_contexts = [[sys_contexts] + agent_context for agent_context in agent_contexts]
         
         for round in tqdm(range(rounds), desc='Rounds', leave=False):
-        # for round in range(rounds):
             for i, agent_context in enumerate(agent_contexts):
 
                 if round != 0:
