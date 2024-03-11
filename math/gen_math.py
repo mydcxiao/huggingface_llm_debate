@@ -195,7 +195,8 @@ def main(args):
 
             text_answers.append(text_answer)
 
-        generated_description[(a, b, c, d, e, f)] = (agent_contexts, answer)
+        # generated_description[(a, b, c, d, e, f)] = (agent_contexts, answer)
+        generated_description[f"{a}+{b}*{c}+{d}-{e}*{f}"] = (agent_contexts, answer)
 
         try:
             text_answer = most_frequent(text_answers)
@@ -203,13 +204,13 @@ def main(args):
                 scores.append(1)
             else:
                 scores.append(0)
+            lines.append("performance: {} {}".format(np.mean(scores), np.std(scores) / (len(scores) ** 0.5)))
         except:
             continue
             
         # print("performance:", np.mean(scores), np.std(scores) / (len(scores) ** 0.5))
-        lines.append("performance: {} {}".format(np.mean(scores), np.std(scores) / (len(scores) ** 0.5)))
         
-    with open("math_{}_{}.txt".format(agents, rounds), "a") as f:
+    with open("math_{}_{}.txt".format(agents, rounds), "w") as f:
         f.write("\n".join(lines))
     f.close()
 
