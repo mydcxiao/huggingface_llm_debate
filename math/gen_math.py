@@ -8,7 +8,7 @@ import argparse
 import torch
 import transformers
 import requests
-from transformers import AutoTokenizer, GemmaTokenizer, AutoModelForCausalLM, AutoConfig
+from transformers import AutoTokenizer, GemmaTokenizer, AutoModelForCausalLM, AutoConfig, GenerationConfig
 from transformers import pipeline
 
 
@@ -35,8 +35,11 @@ def generate_answer(answer_context, API=False):
         prompt = tokenizer.apply_chat_template(answer_context, tokenize=False, add_generation_prompt=True)
         # print(prompt)
         inputs = tokenizer.encode(prompt, add_special_tokens=False, return_tensors="pt")
-        # outputs = model.generate(input_ids=inputs.to(model.device), max_new_tokens=100, num_beams=4, do_sample=True)
-        outputs = model.generate(input_ids=inputs.to(model.device), do_sample=True)
+        # introduce randomness
+        gen_config.top_k = np.random.randint(10, 51)
+        gen_config.top_p = np.random.uniform(0.9, 1.0)
+        gen_config.temperature = np.random.uniform(0.6, 1.0)
+        outputs = model.generate(input_ids=inputs.to(model.device), generation_config=gen_config)
         outputs = tokenizer.decode(outputs[0], skip_special_tokens=True, clean_up_tokenization_spaces=True)
         # print(outputs)
         return outputs
@@ -247,6 +250,12 @@ if __name__ == "__main__":
                 "Content-Type": "application/json"}
     else:
         config = AutoConfig.from_pretrained(model_id)
+        gen_config = GenerationConfig.from_pretrained(model_id)
+        if gen_config.max_length == 20:
+            gen_config.max_length = 1000
+        gen_config.do_sample = True
+        gen_config.pad_token_id = gen_config.pad_token_id if hasattr(gen_config, "pad_token_id") and gen_config.pad_token_id else \
+            config.pad_token_id if hasattr(config, "pad_token_id") and config.pad_token_id else 0
         torch_dtype = config.torch_dtype
         model = AutoModelForCausalLM.from_pretrained(
             model_id,
