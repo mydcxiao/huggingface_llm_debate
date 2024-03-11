@@ -1,4 +1,4 @@
-export AGENTS=2
+export AGENTS=3
 export ROUNDS=2
 # export MODEL_ID="meta-llama/Llama-2-7b-chat-hf"
 export MODEL_ID="mistralai/Mistral-7B-Instruct-v0.2"

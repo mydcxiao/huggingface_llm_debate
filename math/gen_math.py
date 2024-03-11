@@ -252,7 +252,7 @@ if __name__ == "__main__":
         config = AutoConfig.from_pretrained(model_id)
         gen_config = GenerationConfig.from_pretrained(model_id)
         if gen_config.max_length == 20:
-            gen_config.max_length = 1000
+            gen_config.max_length = 4096
         gen_config.do_sample = True
         gen_config.pad_token_id = gen_config.pad_token_id if hasattr(gen_config, "pad_token_id") and gen_config.pad_token_id else \
             config.pad_token_id if hasattr(config, "pad_token_id") and config.pad_token_id else 0
