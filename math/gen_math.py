@@ -182,38 +182,36 @@ def main(args):
                 # print(completion)
 
         text_answers = []
+    
+        lines = []
+        for agent_context in agent_contexts:
+            # text_answer = string =  agent_context[-1]['content']
+            text_answer = agent_context[-1]['content']
+            text_answer = text_answer.replace(",", ".")
+            text_answer = parse_answer(text_answer)
 
-        with open("math_{}_{}.txt".format(agents, rounds), "w") as f:
-            pass
-        
-        with open("math_{}_{}.txt".format(agents, rounds), "a") as f:
-            
-            for agent_context in agent_contexts:
-                # text_answer = string =  agent_context[-1]['content']
-                text_answer = agent_context[-1]['content']
-                text_answer = text_answer.replace(",", ".")
-                text_answer = parse_answer(text_answer)
-
-                if text_answer is None:
-                    continue
-
-                text_answers.append(text_answer)
-
-            generated_description[(a, b, c, d, e, f)] = (agent_contexts, answer)
-
-            try:
-                text_answer = most_frequent(text_answers)
-                if text_answer == answer:
-                    scores.append(1)
-                else:
-                    scores.append(0)
-            except:
+            if text_answer is None:
                 continue
 
+            text_answers.append(text_answer)
+
+        generated_description[(a, b, c, d, e, f)] = (agent_contexts, answer)
+
+        try:
+            text_answer = most_frequent(text_answers)
+            if text_answer == answer:
+                scores.append(1)
+            else:
+                scores.append(0)
+        except:
+            continue
+            
         # print("performance:", np.mean(scores), np.std(scores) / (len(scores) ** 0.5))
-            f.write("performance: {} {}\n".format(np.mean(scores), np.std(scores) / (len(scores) ** 0.5)))
+        lines.append("performance: {} {}".format(np.mean(scores), np.std(scores) / (len(scores) ** 0.5)))
         
-        f.close()
+    with open("math_{}_{}.txt".format(agents, rounds), "a") as f:
+        f.write("\n".join(lines))
+    f.close()
 
     json.dump(generated_description, open("math_{}_{}.json".format(agents, rounds), "w"))
     print("performance:", np.mean(scores), np.std(scores) / (len(scores) ** 0.5))
