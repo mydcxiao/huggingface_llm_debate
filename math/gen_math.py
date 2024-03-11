@@ -147,6 +147,7 @@ def main(args):
     scores = []
 
     generated_description = {}
+    lines = []
 
     for round in tqdm(range(evaluation_round), desc='Computing'):
         a, b, c, d, e, f = np.random.randint(0, 30, size=6)
@@ -183,7 +184,6 @@ def main(args):
 
         text_answers = []
     
-        lines = []
         for agent_context in agent_contexts:
             # text_answer = string =  agent_context[-1]['content']
             text_answer = agent_context[-1]['content']
@@ -196,7 +196,7 @@ def main(args):
             text_answers.append(text_answer)
 
         # generated_description[(a, b, c, d, e, f)] = (agent_contexts, answer)
-        generated_description[f"{a}+{b}*{c}+{d}-{e}*{f}"] = (agent_contexts, answer)
+        generated_description[f"{a}+{b}*{c}+{d}-{e}*{f}"] = (agent_contexts, str(answer))
 
         try:
             text_answer = most_frequent(text_answers)
