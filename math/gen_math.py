@@ -105,10 +105,10 @@ def summarize_message(agent_contexts, question, idx, role, split, sys):
 
         prefix_string = prefix_string + response
 
-    prefix_string = prefix_string + "\n\n Write a summary of the different opinions from each of the individual agent in short and brief manner."
+    prefix_string = prefix_string + "\n\n Write a summary of the different opinions from each of the individual agent in brief and logical manner."
     context = [{"role": "user", "content": prefix_string}]
     if sys:
-        context = [{"role": "system", "content": "You are a helpful assistant to summarize opinions from different agents in short and brief manner."}] + context
+        context = [{"role": "system", "content": "You are a helpful assistant to summarize opinions from different agents in brief and logical manner."}] + context
     completion = construct_assistant_message(generate_answer(context, API), role, split, API)['content']
     prefix_string = f"Here is a summary of recent/updated opinions from other agents: \n\n{completion}"
     prefix_string = prefix_string + "\n\n Use this summary carefully as additional advice, can you provide an updated answer? Make sure to state your answer at the end of the response.".format(question)
