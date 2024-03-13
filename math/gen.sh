@@ -1,5 +1,5 @@
 export AGENTS=3
-export ROUNDS=2
+export ROUNDS=4
 # export MODEL_ID="meta-llama/Llama-2-7b-chat-hf"
 export MODEL_ID="mistralai/Mistral-7B-Instruct-v0.2"
 # export MODEL_ID=""google/gemma-7b-it""
@@ -16,7 +16,7 @@ python gen_math.py \
     --model_id "$MODEL_ID" \
     --split "$SPLIT" \
     --role "$ROLE" \
+    --summarize \
     # --sys \
-    # --summarize \
     # --token "$TOKEN" \
     # --api \

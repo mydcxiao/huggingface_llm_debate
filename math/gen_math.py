@@ -105,7 +105,7 @@ def summarize_message(agent_contexts, question, idx, role, split, sys):
 
         prefix_string = prefix_string + response
 
-    prefix_string = prefix_string + "\n\n Write a summary of the different opinions from each of the individual agent."
+    prefix_string = prefix_string + "\n\n Write a summary of the different opinions from each of the individual agent in short and brief manner."
     context = [{"role": "user", "content": prefix_string}]
     if sys:
         context = [{"role": "system", "content": "You are a helpful assistant to summarize opinions from different agents in short and brief manner."}] + context
