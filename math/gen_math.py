@@ -213,9 +213,18 @@ def main(args):
             continue
             
         # print("performance:", np.mean(scores), np.std(scores) / (len(scores) ** 0.5))
-        
-    with open("math_{}_{}.txt".format(agents, rounds), "w") as f:
-        f.write("\n".join(lines))
+    if not args.summarize and not args.sys:    
+        with open("math_{}_{}.txt".format(agents, rounds), "w") as f:
+            f.write("\n".join(lines))
+    elif args.summarize and args.sys:
+        with open("math_{}_{}_sys_sum.txt".format(agents, rounds), "w") as f:
+            f.write("\n".join(lines))
+    elif args.summarize and not args.sys:
+        with open("math_{}_{}_sum.txt".format(agents, rounds), "w") as f:
+            f.write("\n".join(lines))
+    else:
+        with open("math_{}_{}_sys.txt".format(agents, rounds), "w") as f:
+            f.write("\n".join(lines))
     f.close()
 
     json.dump(generated_description, open("math_{}_{}.json".format(agents, rounds), "w"))
