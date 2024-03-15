@@ -6,8 +6,8 @@ Some code and prompts are borrowed from [original paper released code](https://c
 You may see some additional debate logs from original release [here](https://www.dropbox.com/sh/6kq5ixfnf4zqk09/AABezsYsBhgg1IQAZ12yQ43_a?dl=0).
 
 ## TODO:
-✅ Math huggingface open-source LLM debate.\
-✅ GSM8K huggingface open-source LLM debate.
+\u2705 Math huggingface open-source LLM debate.\
+\u2705 GSM8K huggingface open-source LLM debate.
 - [ ] MMLU huggingface open-source LLM debate.
 - [ ] Biography huggingface open-source LLM debate.
 
