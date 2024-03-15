@@ -7,8 +7,8 @@ You may see some additional debate logs from original release [here](https://www
 
 ## TODO:
 :white_check_mark: Math huggingface open-source LLM debate.\
-:white_check_mark: GSM8K huggingface open-source LLM debate.
-:x: MMLU huggingface open-source LLM debate.
+:white_check_mark: GSM8K huggingface open-source LLM debate.\
+:x: MMLU huggingface open-source LLM debate.\
 :x: Biography huggingface open-source LLM debate.
 
 ## Running experiments
