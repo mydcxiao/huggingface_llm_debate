@@ -11,6 +11,10 @@ You may see some additional debate logs from original release [here](https://www
 :x: MMLU huggingface open-source LLM debate.\
 :x: Biography huggingface open-source LLM debate.
 
+## Reproduce on Mistral_7b_instruct_v0.2
+
+![assets/mistral_7b_debate.png]
+
 ## Running experiments
 
 The code for running arithmetic, GSM, biographies, and MMLU tasks may be found in the following subfolders
