@@ -2,7 +2,7 @@
 
 This repository is the implementation of [Improving Factuality and Reasoning in Language Models through Multiagent Debate](https://arxiv.org/abs/2305.14325) based on Huggingface open-source LLM models.
 
-Some code and prompts are borrowed from [original paper released code](https://composable-models.github.io/llm_debate/) and [LLM Agora](https://github.com/gauss5930/LLM-Agora/) 
+Some code and prompts are borrowed from [original paper released code](https://composable-models.github.io/llm_debate/) and [LLM Agora](https://github.com/gauss5930/LLM-Agora/). 
 You may see some additional debate logs from original release [here](https://www.dropbox.com/sh/6kq5ixfnf4zqk09/AABezsYsBhgg1IQAZ12yQ43_a?dl=0).
 
 ## TODO:
