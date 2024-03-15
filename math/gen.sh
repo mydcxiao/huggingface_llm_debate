@@ -8,7 +8,7 @@ export SPLIT="[/INST]"
 # export SPLIT="model"
 export ROLE="assistant" 
 # export ROLE="model"
-export CUDA_VISIBLE_DEVICES=1
+export CUDA_VISIBLE_DEVICES=0
 
 python gen_math.py \
     --agents $AGENTS \
@@ -16,7 +16,7 @@ python gen_math.py \
     --model_id "$MODEL_ID" \
     --split "$SPLIT" \
     --role "$ROLE" \
-    --summarize \
+    # --summarize \
     # --sys \
     # --token "$TOKEN" \
     # --api \
