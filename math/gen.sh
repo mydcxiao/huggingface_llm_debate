@@ -1,14 +1,15 @@
-export AGENTS=7
+export AGENTS=3
 export ROUNDS=2
-# export MODEL_ID="meta-llama/Llama-2-7b-chat-hf"
-export MODEL_ID="mistralai/Mistral-7B-Instruct-v0.2"
+export MODEL_ID="meta-llama/Llama-2-7b-chat-hf"
+# export MODEL_ID="mistralai/Mistral-7B-Instruct-v0.2"
 # export MODEL_ID=""google/gemma-7b-it""
 export TOKEN=""
 export SPLIT="[/INST]" 
 # export SPLIT="model"
 export ROLE="assistant" 
 # export ROLE="model"
-export CUDA_VISIBLE_DEVICES=0
+export OUTPUT_DIR="output"
+export CUDA_VISIBLE_DEVICES=1
 
 python gen_math.py \
     --agents $AGENTS \
@@ -16,7 +17,8 @@ python gen_math.py \
     --model_id "$MODEL_ID" \
     --split "$SPLIT" \
     --role "$ROLE" \
-    # --summarize \
-    # --sys \
+    --output_dir "$OUTPUT_DIR" \
+    --summarize \
+    --sys \
     # --token "$TOKEN" \
     # --api \

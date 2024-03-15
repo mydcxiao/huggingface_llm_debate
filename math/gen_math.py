@@ -8,6 +8,7 @@ import argparse
 import torch
 import transformers
 import requests
+import os
 from transformers import AutoTokenizer, GemmaTokenizer, AutoModelForCausalLM, AutoConfig, GenerationConfig
 from transformers import pipeline
 
@@ -33,7 +34,6 @@ def parse_bullets(sentence):
 def generate_answer(answer_context, API=False):
     if not API:
         prompt = tokenizer.apply_chat_template(answer_context, tokenize=False, add_generation_prompt=True)
-        # print(prompt)
         inputs = tokenizer.encode(prompt, add_special_tokens=False, return_tensors="pt")
         # introduce randomness
         # gen_config.top_k = np.random.randint(10, 51)
@@ -41,7 +41,6 @@ def generate_answer(answer_context, API=False):
         # gen_config.temperature = np.random.uniform(0.6, 1.0)
         outputs = model.generate(input_ids=inputs.to(model.device), generation_config=gen_config)
         outputs = tokenizer.decode(outputs[0], skip_special_tokens=True, clean_up_tokenization_spaces=True)
-        # print(outputs)
         return outputs
     else:
         try:
@@ -147,7 +146,7 @@ def main(args):
     rounds = args.rounds
     np.random.seed(0)
 
-    evaluation_round = 100
+    evaluation_round = 1
     scores = []
 
     generated_description = {}
@@ -213,31 +212,15 @@ def main(args):
             continue
             
         # print("performance:", np.mean(scores), np.std(scores) / (len(scores) ** 0.5))
-    if not args.summarize and not args.sys:    
-        with open("math_{}_{}.txt".format(agents, rounds), "w") as f:
-            f.write("\n".join(lines))
-        json.dump(generated_description, open("math_{}_{}.json".format(agents, rounds), "w"))
-    elif args.summarize and args.sys:
-        with open("math_{}_{}_sys_sum.txt".format(agents, rounds), "w") as f:
-            f.write("\n".join(lines))
-        json.dump(generated_description, open("math_{}_{}_sys_sum.json".format(agents, rounds), "w"))
-    elif args.summarize and not args.sys:
-        with open("math_{}_{}_sum.txt".format(agents, rounds), "w") as f:
-            f.write("\n".join(lines))
-        json.dump(generated_description, open("math_{}_{}_sum.json".format(agents, rounds), "w"))
-    else:
-        with open("math_{}_{}_sys.txt".format(agents, rounds), "w") as f:
-            f.write("\n".join(lines))
-        json.dump(generated_description, open("math_{}_{}_sys.json".format(agents, rounds), "w"))
+    
+    os.makedirs(args.output_dir, exist_ok=True)
+    with open(os.path.join(args.output_dir, f"math_{agents}_{rounds}.txt"), "w") as f:
+        f.write("\n".join(lines))
+    json.dump(generated_description, open(os.path.join(args.output_dir, f"math_{agents}_{rounds}.json"), "w"))
     f.close()
 
     print("performance:", np.mean(scores), np.std(scores) / (len(scores) ** 0.5))
     
-    # pickle.dump(generated_description, open("math_agents{}_rounds{}.p".format(agents, rounds), "wb"))
-    # import pdb
-    # pdb.set_trace()
-    # print(answer)
-    # print(agent_context)
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generate GSM data')
@@ -250,6 +233,7 @@ if __name__ == "__main__":
     parser.add_argument('--sys', action='store_true', help='Use sys role', default=False)
     parser.add_argument('--split', type=str, default="[/INST]", help='Response split')
     parser.add_argument('--role', type=str, default="assistant", help='Role')
+    parser.add_argument('--output_dir', type=str, default="output/", help='Output directory')
     
     args = parser.parse_args()
     API = args.api

@@ -5,22 +5,20 @@ import random
 import requests
 import time
 import argparse
+import os
 from tqdm import tqdm
 import torch
 import transformers
-from transformers import AutoTokenizer, GemmaTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, GemmaTokenizer, AutoModelForCausalLM, GenerationConfig, AutoConfig
 from transformers import pipeline
 
 
 def generate_answer(answer_context, API=False):
     if not API:
         prompt = tokenizer.apply_chat_template(answer_context, tokenize=False, add_generation_prompt=True)
-        # print(prompt)
         inputs = tokenizer.encode(prompt, add_special_tokens=False, return_tensors="pt")
-        # outputs = model.generate(input_ids=inputs.to(model.device), max_new_tokens=100, num_beams=4, do_sample=True)
-        outputs = model.generate(input_ids=inputs.to(model.device))
+        outputs = model.generate(input_ids=inputs.to(model.device), generation_config=gen_config)
         outputs = tokenizer.decode(outputs[0], skip_special_tokens=True, clean_up_tokenization_spaces=True)
-        # print(outputs)
         return outputs
     else:
         try:
@@ -62,13 +60,8 @@ def construct_assistant_message(completion, role, split, API=False):
         content = completion[0]["generated_text"]
     else:
         content = completion
-    # content = content.split('model\n')[-1] # Gemma
-    # content = content.split('[/INST]  ')[-1] # Llama
-    # print(content)
     content = content.split(split)[-1].strip()
     return {"role": f"{role}", "content": content}
-    # return {"role": "assistant", "content": content}
-    # return {"role": "model", "content": content}
 
 def summarize_message(agent_contexts, question, idx, role, split, sys):
     if len(agent_contexts) == 0:
@@ -81,13 +74,13 @@ def summarize_message(agent_contexts, question, idx, role, split, sys):
 
         prefix_string = prefix_string + response
 
-    prefix_string = prefix_string + "\n\n Write a summary of the different opinions from each of the individual agent."
+    prefix_string = prefix_string + "\n\n Write a summary of the different opinions from each of the individual agent in brief and logical manner."
     context = [{"role": "user", "content": prefix_string}]
     if sys:
-        context = [{"role": "system", "content": "You are a helpful assistant to summarize opinions from different agents in short and brief manner."}] + context
+        context = [{"role": "system", "content": "You are a helpful assistant to summarize opinions from different agents in brief and logical manner."}] + context
     completion = construct_assistant_message(generate_answer(context, API), role, split, API)['content']
     prefix_string = f"Here is a summary of solutions from other agents: \n\n{completion}"
-    prefix_string = prefix_string + """\n\n Use this summarization carefully as additional information, can you provide your answer to the math problem? \n The original math problem is {}. Your final answer should be a single numerical number, in the form \\boxed{{answer}}, at the end of your response.""".format(question)
+    prefix_string = prefix_string + """\n\n Use this summary carefully as additional information, can you provide your answer to the math problem? \n The original math problem is {}. Your final answer should be a single numerical number, in the form \\boxed{{answer}}, at the end of your response.""".format(question)
 
     return {"role": "user", "content": prefix_string}
 
@@ -106,7 +99,7 @@ def main(args):
     questions = read_jsonl("grade-school-math/grade_school_math/data/test.jsonl")
     random.shuffle(questions)
 
-    for data in tqdm(questions[:100], desc='Answering questions'):
+    for data in tqdm(questions[:1], desc='Answering questions'):
         question = data['question']
         answer = data['answer']
 
@@ -140,12 +133,9 @@ def main(args):
 
         generated_description[question] = (agent_contexts, answer)
 
-    json.dump(generated_description, open("gsm_{}_{}.json".format(agents, rounds), "w"))# DEBUG tensor can't be pickled
+    os.makedirs(args.output_dir, exist_ok=True)
+    json.dump(generated_description, open(os.path.join(args.output_dir, "gsm_{}_{}.json".format(agents, rounds)), "w"))
 
-    # import pdb
-    # pdb.set_trace()
-    # print(answer)
-    # print(agent_context)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generate GSM data')
@@ -158,6 +148,7 @@ if __name__ == "__main__":
     parser.add_argument('--sys', action='store_true', help='Use sys role', default=False)
     parser.add_argument('--split', type=str, default="[/INST]", help='Response split')
     parser.add_argument('--role', type=str, default="assistant", help='Role')
+    parser.add_argument('--output_dir', type=str, default="output/", help='Output directory')
     
     args = parser.parse_args()
     API = args.api
@@ -169,11 +160,18 @@ if __name__ == "__main__":
         headers = {"Authorization": f"Bearer {YOUR_TOKEN}",
                 "Content-Type": "application/json"}
     else:
-        dtype = torch.bfloat16
+        config = AutoConfig.from_pretrained(model_id)
+        gen_config = GenerationConfig.from_pretrained(model_id)
+        if gen_config.max_length == 20:
+            gen_config.max_length = 4096
+        gen_config.do_sample = True
+        gen_config.pad_token_id = gen_config.pad_token_id if hasattr(gen_config, "pad_token_id") and gen_config.pad_token_id else \
+            config.pad_token_id if hasattr(config, "pad_token_id") and config.pad_token_id else 0
+        torch_dtype = config.torch_dtype
         model = AutoModelForCausalLM.from_pretrained(
             model_id,
-            device_map="cuda",
-            torch_dtype=dtype,
+            device_map="auto",
+            torch_dtype=torch_dtype,
         )
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     main(args)
