@@ -99,7 +99,7 @@ def main(args):
     questions = read_jsonl("grade-school-math/grade_school_math/data/test.jsonl")
     random.shuffle(questions)
 
-    for data in tqdm(questions[:1], desc='Answering questions'):
+    for data in tqdm(questions[:100], desc='Answering questions'):
         question = data['question']
         answer = data['answer']
 

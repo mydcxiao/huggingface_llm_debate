@@ -146,7 +146,7 @@ def main(args):
     rounds = args.rounds
     np.random.seed(0)
 
-    evaluation_round = 1
+    evaluation_round = 100
     scores = []
 
     generated_description = {}
