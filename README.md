@@ -6,8 +6,8 @@ Some code and prompts are borrowed from [original paper released code](https://c
 You may see some additional debate logs from original release [here](https://www.dropbox.com/sh/6kq5ixfnf4zqk09/AABezsYsBhgg1IQAZ12yQ43_a?dl=0).
 
 ## TODO:
-- [X] Math huggingface open-source LLM debate.
-- [X] GSM8K huggingface open-source LLM debate.
+- ✅ Math huggingface open-source LLM debate.
+- ✅ GSM8K huggingface open-source LLM debate.
 - [ ] MMLU huggingface open-source LLM debate.
 - [ ] Biography huggingface open-source LLM debate.
 
@@ -36,9 +36,13 @@ python gen_math.py \
     --sys
 ```
 `--summarize` will enable summarization throughout debate mentioned in the paper.
+
 `--sys` will append system message before the message for models capable of system message.
+
 `--model_id` is the model dir in huggingface hub.
+
 `--split` is the special token used to split question and response in multi-round chat model.
+
 `--role` is the role of message for multi-round chat model.
 
 - run using huggingface API:
@@ -56,6 +60,7 @@ python gen_math.py \
     --token "dhqieiq"
 ```
 `--api` will let the program to fetch reponses from huggingface API.
+
 `--token` input your huggingface token here.
 	
 **Grade School Math:**
@@ -74,9 +79,13 @@ python gen_gsm.py \
     --sys
 ```
 `--summarize` will enable summarization throughout debate mentioned in the paper.
+
 `--sys` will append system message before the message for models capable of system message.
+
 `--model_id` is the model dir in huggingface hub.
+
 `--split` is the special token used to split question and response in multi-round chat model.
+
 `--role` is the role of message for multi-round chat model.
 
 - run using huggingface API:
@@ -94,6 +103,7 @@ python gen_gsm.py \
     --token "dhqieiq"
 ```
 `--api` will let the program to fetch reponses from huggingface API.
+
 `--token` input your huggingface token here.
 
 To evaluate the generated results of Grade School Math problems:
@@ -122,13 +132,3 @@ To evaluate the generated results of MMLU:
 	`python eval_mmlu.py`
 	
 You can download the MMLU dataset [here](https://github.com/hendrycks/test)
-
-If you would like to cite the paper, here is a bibtex file:
-```
-@article{du2023improving,
-  title={Improving Factuality and Reasoning in Language Models through Multiagent Debate},
-  author={Du, Yilun and Li, Shuang and Torralba, Antonio and Tenenbaum, Joshua B and Mordatch, Igor},
-  journal={arXiv preprint arXiv:2305.14325},
-  year={2023}
-}
-```
