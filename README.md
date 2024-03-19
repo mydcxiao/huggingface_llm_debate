@@ -63,7 +63,7 @@ python gen_math.py \
     --api \
     --token "dhqieiq"
 ```
-`--api` will let the program to fetch reponses from huggingface API.
+`--api` will let the program to fetch responses from huggingface API.
 
 `--token` input your huggingface token here.
 	
@@ -106,7 +106,7 @@ python gen_gsm.py \
     --api \
     --token "dhqieiq"
 ```
-`--api` will let the program to fetch reponses from huggingface API.
+`--api` will let the program to fetch responses from huggingface API.
 
 `--token` input your huggingface token here.
 
